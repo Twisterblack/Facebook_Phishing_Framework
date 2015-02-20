@@ -1,0 +1,6 @@
+Facebook_phishing_framework V1 ==> V2
+Update information :
+
+- Integration of a capture module, allowing to know in real time before the identifiers of the victim.
+- Integration of a detection module installed the framework.
+- Optimization language (US).
