@@ -1,0 +1,6 @@
+# File must contain the domain names to usurp our IP address.     #
+# Example format :                                                #
+###################################################################
+
+192.168.1.17	facebook.com
+192.168.1.17	*.facebook.com
